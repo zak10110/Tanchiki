@@ -10,6 +10,17 @@ namespace Tank_Server_Client_lib
         public int Speed { get; set; }
         public int Damage { get; set; }
         public float Rotation { get; set; }
+        public int ID { get; set; }
+
+
+        public Tank()
+        {
+            Rotation = 0;
+            this.HP = 300;
+            this.Damage = 50;
+            this.Speed = 3;
+
+        }
 
         public Tank(int hp, int speed, int dmg)
         {

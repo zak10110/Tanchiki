@@ -5,6 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Tank_Server_Client_lib
 {
@@ -17,7 +20,8 @@ namespace Tank_Server_Client_lib
         public Socket socket { get; set; }
         public IPEndPoint ipPoint { get; set; }
         public List<Socket> clients { get; set; }
-
+        public List<Tank> tanks { get; set; }
+        public int ClientID { get; set; }
         public Server(int port, string IpAdr)
         {
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -25,7 +29,8 @@ namespace Tank_Server_Client_lib
             this.port = port;
             this.IpAdr = IpAdr;
             clients = new List<Socket>();
-
+            tanks = new List<Tank>();
+            ClientID = 0;
         }
 
 
@@ -37,12 +42,70 @@ namespace Tank_Server_Client_lib
 
         }
 
+        public void SendLIstToALLClients()
+        {
+      
+
+            while (true)
+            {
+
+                try
+                {
+                    string json = JsonSerializer.Serialize<List<Tank>>(tanks);
+                    foreach (var item in clients)
+                    {
+                        SendMsgToClien(item,json);
+                    }
+                    Thread.Sleep(10);
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+
+                }
+
+            }
+        
+        
+        }
+
+
         public void Conection()
         {
             while (true)
             {
 
+
                 this.clients.Add(socket.Accept());
+                this.SendMsgToClien(this.clients.Last(), ClientID.ToString());
+                tanks.Add(new Tank());
+                Task.Factory.StartNew(() => { Console.WriteLine(GetMsg(clients.Last())); GetTank(); });
+                ClientID++;
+
+
+            }
+
+        }
+
+        public void GetTank()
+        {
+            
+            int ID = clients.Count-1;
+            string msg = string.Empty;
+            while (true)
+            {
+                try
+                {
+                    msg = GetMsg(clients[ID]);
+                    this.tanks[ID] = JsonSerializer.Deserialize<Tank>(msg);
+                    Console.WriteLine("Client ID:" + ID.ToString()+" Coord X:"+tanks[ID].X.ToString()+" Coord Y:"+tanks[ID].Y.ToString());
+
+                }
+                catch (Exception)
+                {
+
+                }
 
             }
 

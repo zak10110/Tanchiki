@@ -14,6 +14,7 @@ namespace Tank_Server_Client_lib
         public int port { get; set; }
         public Socket socket { get; set; }
         public IPEndPoint iPEndPoint { get; set; }
+        public int ID { get; set; }
 
         public Client(string ipadres, int port)
         {

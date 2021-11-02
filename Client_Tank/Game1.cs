@@ -1,6 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Tank_Server_Client_lib;
 
 namespace Client_Tank
@@ -10,13 +14,15 @@ namespace Client_Tank
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         Texture2D tank_texture;
-        Tank tank = new Tank(300, 5, 30);
+        Tank tank = new Tank(300, 3, 30);
         Vector2 position = Vector2.Zero;
-
-
+        Client client = new Client("127.0.0.1", 8000);
+        List<Tank> tanks = new List<Tank>();
+        //List<Texture2D> texture2Ds = new List<Texture2D>();
 
         public Game1()
         {
+            
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
@@ -24,12 +30,14 @@ namespace Client_Tank
 
         protected override void Initialize()
         {
+            var rand = new Random();
             // TODO: Add your initialization logic here
-            Client client = new Client("127.0.0.1", 8000);
+            client.ID = rand.Next(1, 10);
             client.CreateIPEndPoint();
             client.Conect();
-            client.SengMsg("Conection");
-
+            client.ID = int.Parse(client.TakeMSGFromServ());
+            client.SengMsg($"Conection Success Client ID-{client.ID}");
+           
 
             base.Initialize();
         }
@@ -46,33 +54,53 @@ namespace Client_Tank
             KeyboardState keyboardState = Keyboard.GetState();
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            string json = JsonSerializer.Serialize<Tank>(tank);
+
+            try
+            {
+                tanks = JsonSerializer.Deserialize<List<Tank>>(client.TakeMSGFromServ());
+            }
+            catch (Exception)
+            {
+
+
+            }
+
+          
+
             if (keyboardState.IsKeyDown(Keys.Left))
             {
                 tank.X -= tank.Speed;
                 tank.Rotation = 23.55f;
-
-
+                client.SengMsg(json);
 
             }
-            if (keyboardState.IsKeyDown(Keys.Right))
+            else if (keyboardState.IsKeyDown(Keys.Right))
             {
                 tank.X += tank.Speed;
                 tank.Rotation = 7.85f;
+                client.SengMsg(json);
 
             }
-            if (keyboardState.IsKeyDown(Keys.Up))
+            else if (keyboardState.IsKeyDown(Keys.Up))
             {
                 tank.Y -= tank.Speed;
                 tank.Rotation = 0f;
+                client.SengMsg(json);
             }
-            if (keyboardState.IsKeyDown(Keys.Down))
+            else if(keyboardState.IsKeyDown(Keys.Down))
             {
 
                 tank.Y += tank.Speed;
                 tank.Rotation = 15.7f;
+                client.SengMsg(json);
 
             }
             // TODO: Add your update logic here
+
+          
+
+
 
             base.Update(gameTime);
         }
@@ -84,9 +112,12 @@ namespace Client_Tank
             _spriteBatch.Begin();
 
 
-            _spriteBatch.Draw(tank_texture, new Rectangle(tank.X, tank.Y, 40, 49), null, Color.White, tank.Rotation, new Vector2(40 / 2f, 49 / 2f), SpriteEffects.None, 0f);
+            //_spriteBatch.Draw(tank_texture, new Rectangle(tank.X, tank.Y, 40, 49), null, Color.White, tank.Rotation, new Vector2(40 / 2f, 49 / 2f), SpriteEffects.None, 0f);
 
-
+            foreach (var item in tanks)
+            {
+                _spriteBatch.Draw(tank_texture, new Rectangle(item.X, item.Y, 40, 49), null, Color.White, item.Rotation, new Vector2(40 / 2f, 49 / 2f), SpriteEffects.None, 0f);
+            }
 
             _spriteBatch.End();
 
