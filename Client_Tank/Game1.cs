@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Tank_Server_Client_lib;
 
+
 namespace Client_Tank
 {
     public class Game1 : Game
@@ -20,6 +21,7 @@ namespace Client_Tank
         Client client = new Client("127.0.0.1", 8000);
         List<Tank> tanks = new List<Tank>();
         Map mapp = new Map(12,12);
+        List<Cell> cells = new List<Cell>();
         //List<Texture2D> texture2Ds = new List<Texture2D>();
 
         public Game1()
@@ -37,9 +39,7 @@ namespace Client_Tank
             _graphics.ApplyChanges();
             var rand = new Random();
             // TODO: Add your initialization logic here
-            mapp.DefaultMapCreate();
-           
-            client.ID = rand.Next(1, 10);
+            mapp.CreateManualMAp();
             client.CreateIPEndPoint();
             client.Conect();
             client.ID = int.Parse(client.TakeMSGFromServ());
@@ -54,8 +54,7 @@ namespace Client_Tank
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             tank_texture = Content.Load<Texture2D>(@"Texture\Tank");
             map_texture = Content.Load<Texture2D>(@"Texture\wall");
-            tank.X = 70;
-            tank.Y = 70;
+        
             // TODO: use this.Content to load your game content here
         }
 
@@ -65,7 +64,6 @@ namespace Client_Tank
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             string json = JsonSerializer.Serialize<Tank>(tank);
-
             try
             {
                 tanks = JsonSerializer.Deserialize<List<Tank>>(client.TakeMSGFromServ());
@@ -73,16 +71,27 @@ namespace Client_Tank
             catch (Exception)
             {
 
-
             }
-
-          
+         
 
             if (keyboardState.IsKeyDown(Keys.Left))
             {
                 tank.X -= tank.Speed;
                 tank.Rotation = 23.55f;
+                tank.rectangle = new System.Drawing.Rectangle(tank.X,tank.Y,40,49);
                 client.SengMsg(json);
+                foreach (var item in cells)
+                {
+                    if (tank.rectangle.IntersectsWith(item.rectangle))
+                    {
+
+                        tank.X += tank.Speed;
+
+
+                    }
+
+
+                }
 
             }
             else if (keyboardState.IsKeyDown(Keys.Right))
@@ -90,13 +99,38 @@ namespace Client_Tank
                 tank.X += tank.Speed;
                 tank.Rotation = 7.85f;
                 client.SengMsg(json);
+                tank.rectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
+                foreach (var item in cells)
+                {
+                    if (tank.rectangle.IntersectsWith(item.rectangle))
+                    {
 
+                        tank.X -= tank.Speed;
+
+
+                    }
+
+
+                }
             }
             else if (keyboardState.IsKeyDown(Keys.Up))
             {
                 tank.Y -= tank.Speed;
                 tank.Rotation = 0f;
                 client.SengMsg(json);
+                tank.rectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
+                foreach (var item in cells)
+                {
+                    if (tank.rectangle.IntersectsWith(item.rectangle))
+                    {
+
+                        tank.Y += tank.Speed;
+
+
+                    }
+
+
+                }
             }
             else if(keyboardState.IsKeyDown(Keys.Down))
             {
@@ -104,6 +138,19 @@ namespace Client_Tank
                 tank.Y += tank.Speed;
                 tank.Rotation = 15.7f;
                 client.SengMsg(json);
+                tank.rectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
+                foreach (var item in cells)
+                {
+                    if (tank.rectangle.IntersectsWith(item.rectangle))
+                    {
+
+                        tank.Y -= tank.Speed;
+
+
+                    }
+
+
+                }
 
             }
             // TODO: Add your update logic here
@@ -130,7 +177,8 @@ namespace Client_Tank
                 {
                     if (mapp.map[i,j]=='X')
                     {
-                        _spriteBatch.Draw(map_texture, new Rectangle(x, y, 50, 50), null, Color.White, 0, new Vector2(40 / 2f, 49 / 2f), SpriteEffects.None, 0f);
+                        cells.Add(new Cell(50,50,y,x));
+                        _spriteBatch.Draw(map_texture, new Rectangle(y, x, 50, 50), null, Color.White, 0, new Vector2(40 / 2f, 49 / 2f), SpriteEffects.None, 0f);
                         x = i*50;
                         y = j*50;
                     }

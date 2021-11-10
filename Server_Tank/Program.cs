@@ -14,27 +14,10 @@ namespace Server_Tank
             
 
             Server server = new Server(8000, "127.0.0.1");
-
             server.Start();
             Task task = new Task(() => server.Conection());
             task.Start();
-
             Task.Factory.StartNew(() => { server.SendLIstToALLClients(); });
-
-
-            //if (server.clients.Count > 0)
-            //    {
-
-            //     //Console.WriteLine(server.GetMsg(server.clients.Last()));
-
-                 
-                    
-
-
-            //    }
-
-
-
             Console.ReadLine();
 
         }

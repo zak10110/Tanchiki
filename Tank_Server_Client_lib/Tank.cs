@@ -1,5 +1,6 @@
 ﻿using System;
 
+
 namespace Tank_Server_Client_lib
 {
     public class Tank
@@ -11,6 +12,7 @@ namespace Tank_Server_Client_lib
         public int Damage { get; set; }
         public float Rotation { get; set; }
         public int ID { get; set; }
+        public System.Drawing.Rectangle rectangle {get;set;}
 
 
         public Tank()
@@ -19,7 +21,9 @@ namespace Tank_Server_Client_lib
             this.HP = 300;
             this.Damage = 50;
             this.Speed = 3;
-
+            this.X = 90;
+            this.Y = 90;
+            this.rectangle = new System.Drawing.Rectangle(this.X,this.Y, 40, 49);
         }
 
         public Tank(int hp, int speed, int dmg)
@@ -28,7 +32,9 @@ namespace Tank_Server_Client_lib
             this.HP = hp;
             this.Speed = speed;
             this.Damage = dmg;
-
+            this.X = 90;
+            this.Y = 90;
+            this.rectangle = new System.Drawing.Rectangle(this.X, this.Y, 40, 49);
         }
 
 
