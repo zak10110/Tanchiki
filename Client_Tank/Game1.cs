@@ -22,6 +22,10 @@ namespace Client_Tank
         List<Tank> tanks = new List<Tank>();
         Map mapp = new Map(12,12);
         List<Cell> cells = new List<Cell>();
+        List<System.Drawing.Rectangle> Cels_RTG = new List<System.Drawing.Rectangle>();
+        System.Drawing.Rectangle TankRectangle = new System.Drawing.Rectangle();
+        int tmp = 0;
+        bool Map_Load = false;
         //List<Texture2D> texture2Ds = new List<Texture2D>();
 
         public Game1()
@@ -63,7 +67,20 @@ namespace Client_Tank
             KeyboardState keyboardState = Keyboard.GetState();
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            string json = JsonSerializer.Serialize<Tank>(tank);
+
+            if (Cels_RTG.Count<=0)
+            {
+                if (Map_Load == true)
+                {
+                    foreach (var item in cells)
+                    {
+                        Cels_RTG.Add(new System.Drawing.Rectangle(item.X, item.Y, item.wight, item.height));
+                    }
+                    Map_Load = false;
+                }
+            }
+          
+
             try
             {
                 tanks = JsonSerializer.Deserialize<List<Tank>>(client.TakeMSGFromServ());
@@ -72,20 +89,20 @@ namespace Client_Tank
             {
 
             }
-         
 
+            string json = JsonSerializer.Serialize<Tank>(tank);
             if (keyboardState.IsKeyDown(Keys.Left))
             {
                 tank.X -= tank.Speed;
                 tank.Rotation = 23.55f;
-                tank.rectangle = new System.Drawing.Rectangle(tank.X,tank.Y,40,49);
                 client.SengMsg(json);
-                foreach (var item in cells)
+                TankRectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
+                foreach (var item in Cels_RTG)
                 {
-                    if (tank.rectangle.IntersectsWith(item.rectangle))
+                    if (TankRectangle.IntersectsWith(item))
                     {
 
-                        tank.X += tank.Speed;
+                        tank.X += 1;
 
 
                     }
@@ -99,13 +116,13 @@ namespace Client_Tank
                 tank.X += tank.Speed;
                 tank.Rotation = 7.85f;
                 client.SengMsg(json);
-                tank.rectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
-                foreach (var item in cells)
+                TankRectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
+                foreach (var item in Cels_RTG)
                 {
-                    if (tank.rectangle.IntersectsWith(item.rectangle))
+                    if (TankRectangle.IntersectsWith(item))
                     {
 
-                        tank.X -= tank.Speed;
+                        tank.X -= 1;
 
 
                     }
@@ -118,13 +135,13 @@ namespace Client_Tank
                 tank.Y -= tank.Speed;
                 tank.Rotation = 0f;
                 client.SengMsg(json);
-                tank.rectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
-                foreach (var item in cells)
+                TankRectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
+                foreach (var item in Cels_RTG)
                 {
-                    if (tank.rectangle.IntersectsWith(item.rectangle))
+                    if (TankRectangle.IntersectsWith(item))
                     {
 
-                        tank.Y += tank.Speed;
+                        tank.Y += 1;
 
 
                     }
@@ -138,13 +155,13 @@ namespace Client_Tank
                 tank.Y += tank.Speed;
                 tank.Rotation = 15.7f;
                 client.SengMsg(json);
-                tank.rectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
-                foreach (var item in cells)
+                TankRectangle = new System.Drawing.Rectangle(tank.X, tank.Y, 40, 49);
+                foreach (var item in Cels_RTG)
                 {
-                    if (tank.rectangle.IntersectsWith(item.rectangle))
+                    if (TankRectangle.IntersectsWith(item))
                     {
 
-                        tank.Y -= tank.Speed;
+                        tank.Y -= 1;
 
 
                     }
@@ -153,11 +170,6 @@ namespace Client_Tank
                 }
 
             }
-            // TODO: Add your update logic here
-
-          
-
-
 
             base.Update(gameTime);
         }
@@ -177,10 +189,24 @@ namespace Client_Tank
                 {
                     if (mapp.map[i,j]=='X')
                     {
-                        cells.Add(new Cell(50,50,y,x));
+                        if (tmp <= (mapp.wight * mapp.height))
+                        {
+                            cells.Add(new Cell(50, 50, y, x));
+
+
+                        }
+                        else
+                        {
+
+                            Map_Load = true;
+                        
+                        }
+
+                        tmp++;
                         _spriteBatch.Draw(map_texture, new Rectangle(y, x, 50, 50), null, Color.White, 0, new Vector2(40 / 2f, 49 / 2f), SpriteEffects.None, 0f);
                         x = i*50;
                         y = j*50;
+                     
                     }
                     
 

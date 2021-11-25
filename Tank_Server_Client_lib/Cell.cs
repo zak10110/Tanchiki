@@ -10,7 +10,6 @@ namespace Tank_Server_Client_lib
         public int height { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
-        public System.Drawing.Rectangle rectangle {get;set;}
         public Cell(int wight,int height,int X,int Y)
         {
 
@@ -18,7 +17,6 @@ namespace Tank_Server_Client_lib
             this.height = height;
             this.X = X;
             this.Y = Y;
-            this.rectangle = new System.Drawing.Rectangle(X,Y,wight,height);
         }
 
     }
